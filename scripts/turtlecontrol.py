@@ -11,31 +11,29 @@ from turtlesim.msg import Pose
 
 # message we created
 from robotics_lab1.msg import Turtlecontrol
-
-pos_msg = Turtlecontrol();
+#ctrl_msg = Turtlecontrol();
 # declare variables for the proportional controller equation
 kp = 0
 xd = 0
 xt = 0
 # recieves position information
 def pose_callback(data):
-	global pos_msg
 	global xt
 	# convert x 
-	pos_msg.xt = data.x #TURTLECONTROL OBJECT HAS NO ATTRIBUTE "X"
+	xt = data.x #TURTLECONTROL OBJECT HAS NO ATTRIBUTE "X"
 		
 def user_control_callback(data):
-	global pos_msg
+	#global pos_msg
 	global xd
 	global kp
 	# convert xd and kp
-	pos_msg.xd = data.x 
-	pos_msg.kp = data.y 
+	xd = data.xd
+	kp = data.kp
 	
 
 if __name__ == '__main__':
 	# initialize the node
-	rospy.init_node('turtlecontrol.py', anonymous = True)
+	rospy.init_node('turtlecontrol', anonymous = True)
 	
 	# add a subscriber to it to read the position information
 	rospy.Subscriber('/turtle1/pose', Pose, pose_callback)
