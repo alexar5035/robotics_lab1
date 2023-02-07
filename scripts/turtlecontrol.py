@@ -11,24 +11,22 @@ from turtlesim.msg import Pose
 
 # message we created
 from robotics_lab1.msg import Turtlecontrol
-#ctrl_msg = Turtlecontrol();
-# declare variables for the proportional controller equation
-kp = 0
-xd = 0
-xt = 0
+
+
+pos_msg = Pose()
+ctrl_msg = Turtlecontrol();
+
 # recieves position information
 def pose_callback(data):
-	global xt
-	# convert x 
-	xt = data.x #TURTLECONTROL OBJECT HAS NO ATTRIBUTE "X"
+	global pos_msg
+	# turtle position variable
+	pos_msg.x = data.x 
+
 		
 def user_control_callback(data):
-	#global pos_msg
-	global xd
-	global kp
-	# convert xd and kp
-	xd = data.xd
-	kp = data.kp
+	global ctrl_msg
+	ctrl_msg.xd = data.xd
+	ctrl_msg.kp = data.kp
 	
 
 if __name__ == '__main__':
@@ -42,7 +40,7 @@ if __name__ == '__main__':
 	rospy.Subscriber('/turtle1/control_params', Turtlecontrol, user_control_callback)
 	
 	# add a publisher
-	pos_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size = 10)
+	cmd_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size = 10)
 	
 	# 10Hz freq
 	loop_rate = rospy.Rate(10)
@@ -51,13 +49,12 @@ if __name__ == '__main__':
 	vel_cmd = Twist()
 	
 	while not rospy.is_shutdown():
-		# pos_pub.publish(pos_msg)
-		# set the linear (forward/backward) velocity command to 0.5 m/s
-		vel_cmd.linear.x = kp * (xd - xt) # proportional control equation
-		# set the angular (heading) velocity command to 0.5 radians/s
-		vel_cmd.angular.z = kp * (xd - xt) # proportional control equation
+		# proportional control equation
+		vel_cmd.linear.x = ctrl_msg.kp * (ctrl.msg.xd - pos_msg.x)
+	
 		# publish the command to the defined topic
-		pos_pub.publish(vel_cmd)
+		cmd_pub.publish(vel_cmd)
+	
 		# wait for 0.1 seconds until the next loop and repeat
 		loop_rate.sleep()
 	
